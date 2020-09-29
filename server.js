@@ -2,187 +2,261 @@ var mysql = require("mysql");
 var inquirer = require("inquirer");
 
 var connection = mysql.createConnection({
-  host: "localhost",
-  port: 3306,
-  user: "root",
-  password: "RemakeMyself2020&",
-  database: ""
+    host: "localhost",
+    port: 3306,
+    user: "root",
+    password: "RemakeMyself2020&",
+    database: "EmployeeTrackerDB"
 });
 
 connection.connect(function(err) {
-  if (err) throw err;
-  runSearch();
+    if (err) throw err;
+    start();
 });
 
-function runSearch() {
-  inquirer
+function start() {
+    inquirer
     .prompt({
-      name: "action",
-      type: "rawlist",
-      message: "What would you like to do?",
-      choices: [
-        "Find songs by artist",
-        "Find all artists who appear more than once",
-        "Find data within a specific range",
-        "Search for a specific song",
-        "Find artists with a top song and top album in the same year"
-      ]
+    name: "action",
+    type: "rawlist",
+    message: "What would you like to do?",
+    choices: [
+        "Add departments?",
+        "Add roles?",
+        "Add employees?",
+        "View departments?",
+        "View roles?",
+        "View employees?",
+        "Update employee roles?",
+    ]
     })
     .then(function(answer) {
-      switch (answer.action) {
-      case "Find songs by artist":
-        artistSearch();
+    switch (answer.action) {
+    case "Add departments?":
+        addDepartments();
         break;
 
-      case "Find all artists who appear more than once":
-        multiSearch();
+    case "Add roles?":
+        addRoles();
         break;
 
-      case "Find data within a specific range":
-        rangeSearch();
+    case "Add employees?":
+        addEmployees();
         break;
 
-      case "Search for a specific song":
-        songSearch();
+    case "View departments?":
+        viewDepartments();
         break;
 
-      case "Find artists with a top song and top album in the same year":
-        songAndAlbumSearch();
+    case "Update departments?":
+        updateDepartments();
         break;
-      }
-    });
-}
 
-function artistSearch() {
-  inquirer
-    .prompt({
-      name: "artist",
-      type: "input",
-      message: "What artist would you like to search for?"
-    })
-    .then(function(answer) {
-      var query = "SELECT position, song, year FROM top5000 WHERE ?";
-      connection.query(query, { artist: answer.artist }, function(err, res) {
-        for (var i = 0; i < res.length; i++) {
-          console.log("Position: " + res[i].position + " || Song: " + res[i].song + " || Year: " + res[i].year);
-        }
-        runSearch();
-      });
-    });
-}
+    case "View roles?":
+        viewRoles();
+        break;
 
-function multiSearch() {
-  var query = "SELECT artist FROM top5000 GROUP BY artist HAVING count(*) > 1";
-  connection.query(query, function(err, res) {
-    for (var i = 0; i < res.length; i++) {
-      console.log(res[i].artist);
+    case "View employees?":
+        viewEmployees();
+        break;
+
+    case "Update employee roles?":
+        updateRoles();
+        break;
     }
-    runSearch();
-  });
+    });
 }
 
-function rangeSearch() {
-  inquirer
+//should run a GET first to display current departments, then allow for add
+//add first then GET and display current departments
+function addDepartments() {
+    // prompt for what department to add
+    inquirer
+    .prompt({
+        name: "addDepartment",
+        type: "input",
+        message: "What department would you like to add?"
+    })
+    .then(function(answer) {
+        // when finished prompting, insert a new department
+        connection.query(
+            "INSERT INTO department SET ?",
+            {
+                department_name: answer.addDepartment,
+            },
+            function(err) {
+                if (err) throw err;
+                console.log("Your department was added successfully!");
+                // go back to start
+                start();
+            }
+        );
+    });
+}
+
+//add roles
+function addRoles() {
+    // prompt for what role to add
+    inquirer
+    .prompt({
+        name: "addRole",
+        type: "input",
+        message: "What role would you like to add?"
+    })
+    .then(function(answer) {
+        // when finished prompting, insert a new role
+        connection.query(
+            "INSERT INTO role SET ?",
+            {
+                title: answer.addRole,
+            },
+            function(err) {
+                if (err) throw err;
+                console.log("Your role was added successfully!");
+                // go back to start
+                start();
+            }
+        );
+    });
+}
+
+//add employees - remember first and last name
+function addEmployees() {
+    // prompt for what employee to add
+    inquirer
     .prompt([
-      {
-        name: "start",
+        {
+        name: "firstName",
         type: "input",
-        message: "Enter starting position: ",
-        validate: function(value) {
-          if (isNaN(value) === false) {
-            return true;
-          }
-          return false;
-        }
-      },
-      {
-        name: "end",
+        message: "What is the employee's first name?"
+        },
+        {
+        name: "lastName",
         type: "input",
-        message: "Enter ending position: ",
-        validate: function(value) {
-          if (isNaN(value) === false) {
-            return true;
-          }
-          return false;
+        message: "What is the employee's last name?"
         }
-      }
     ])
     .then(function(answer) {
-      var query = "SELECT position,song,artist,year FROM top5000 WHERE position BETWEEN ? AND ?";
-      connection.query(query, [answer.start, answer.end], function(err, res) {
-        for (var i = 0; i < res.length; i++) {
-          console.log(
-            "Position: " +
-              res[i].position +
-              " || Song: " +
-              res[i].song +
-              " || Artist: " +
-              res[i].artist +
-              " || Year: " +
-              res[i].year
-          );
-        }
-        runSearch();
-      });
-    });
-}
-
-function songSearch() {
-  inquirer
-    .prompt({
-      name: "song",
-      type: "input",
-      message: "What song would you like to look for?"
-    })
-    .then(function(answer) {
-      console.log(answer.song);
-      connection.query("SELECT * FROM top5000 WHERE ?", { song: answer.song }, function(err, res) {
-        console.log(
-          "Position: " +
-            res[0].position +
-            " || Song: " +
-            res[0].song +
-            " || Artist: " +
-            res[0].artist +
-            " || Year: " +
-            res[0].year
+        // when finished prompting, insert a new employee with first and last name
+        connection.query(
+            "INSERT INTO employee SET ?",
+            {
+                e_first_name: answer.firstName,
+                e_last_name: answer.lastName,
+            },
+            function(err) {
+                if (err) throw err;
+                console.log("The employee was added successfully!");
+                // go back to start
+                start();
+            }
         );
-        runSearch();
-      });
     });
 }
 
-function songAndAlbumSearch() {
-  inquirer
+//view departments
+function viewDepartments() {
+    // show list of departments: query the database for all items departments
+    connection.query("SELECT * FROM department", function(err, results) {
+        console.table(results);
+        if (err) throw err;
+
+    // once you have the items, prompt the user for which they'd like to bid on
+    inquirer
     .prompt({
-      name: "artist",
-      type: "input",
-      message: "What artist would you like to search for?"
+        name: "startOver",
+        type: "list",
+        message: "Would you like to start over or update departments?",
+        choices: ["start over", "update departments"]
     })
     .then(function(answer) {
-      var query = "SELECT top_albums.year, top_albums.album, top_albums.position, top5000.song, top5000.artist ";
-      query += "FROM top_albums INNER JOIN top5000 ON (top_albums.artist = top5000.artist AND top_albums.year ";
-      query += "= top5000.year) WHERE (top_albums.artist = ? AND top5000.artist = ?) ORDER BY top_albums.year, top_albums.position";
-
-      connection.query(query, [answer.artist, answer.artist], function(err, res) {
-        console.log(res.length + " matches found!");
-        for (var i = 0; i < res.length; i++) {
-          console.log(
-            i+1 + ".) " +
-              "Year: " +
-              res[i].year +
-              " Album Position: " +
-              res[i].position +
-              " || Artist: " +
-              res[i].artist +
-              " || Song: " +
-              res[i].song +
-              " || Album: " +
-              res[i].album
-          );
+        // ???
+        if (answer.startOver === "start over") {
+            start();
         }
-
-        runSearch();
-      });
+        else if (answer.startOver === "update departments") {
+            updateDepartments();
+        } else{
+            connection.end();
+        }
+    });
     });
 }
+
+// //view roles
+// function viewRoles() {
+//     // view roles
+//     inquirer
+//     .prompt({
+//         name: "addDepartment",
+//         type: "input",
+//         message: "What department would you like to add?"
+//     })
+//     .then(function(answer) {
+//         // ???
+//         connection.query(
+//             "INSERT INTO department SET ?",
+//             {
+//                 department_name: answer.addDepartment,
+//             },
+//             function(err) {
+//                 if (err) throw err;
+//                 console.log("Your department was added successfully!");
+//                 // go back to start
+//                 start();
+//             }
+//         );
+//     });
+// }
+
+// //view employees
+// function viewEmployees() {
+//     // view employees
+//     inquirer
+//     .prompt({
+//         name: "addDepartment",
+//         type: "input",
+//         message: "What department would you like to add?"
+//     })
+//     .then(function(answer) {
+//         // ???
+//         connection.query(
+//             "INSERT INTO department SET ?",
+//             {
+//                 department_name: answer.addDepartment,
+//             },
+//             function(err) {
+//                 if (err) throw err;
+//                 console.log("Your department was added successfully!");
+//                 // go back to start
+//                 start();
+//             }
+//         );
+//     });
+// }
+
+// //update roles
+// function updateRoles() {
+//     // prompt for what role to update
+//     inquirer
+//     .prompt({
+//         name: "addDepartment",
+//         type: "input",
+//         message: "What department would you like to add?"
+//     })
+//     .then(function(answer) {
+//         // ???
+//         connection.query(
+//             "INSERT INTO department SET ?",
+//             {
+//                 department_name: answer.addDepartment,
+//             },
+//             function(err) {
+//                 if (err) throw err;
+//                 console.log("Your department was added successfully!");
+//                 // go back to start
+//                 start();
+//             }
+//         );
+//     });
+// }
