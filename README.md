@@ -16,8 +16,9 @@ Content Mgmt system for tracking employees at work
 
 # URL's
 
-[Questions](#questions)
-[Questions](#questions)
+* [github repo](https://github.com/Shawn-Morgan/EmployeeTracker)
+
+* [video](https://youtu.be/pI1-NzpMl9Q)
 
 # Installation:
 Clone repo, install dependencies with 'npm install' command in terminal interface, then run the program with the command 'node server.js'.
