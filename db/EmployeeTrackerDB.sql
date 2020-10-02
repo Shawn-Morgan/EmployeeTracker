@@ -2,25 +2,27 @@ DROP DATABASE IF EXISTS EmployeeTrackerDB;
 CREATE database EmployeeTrackerDB;
 USE EmployeeTrackerDB;
 
-/* Create new table with a primary key that auto-increments, and a text field */
 CREATE TABLE department (
-  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  department_name VARCHAR(30) NOT NULL
+  id INT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(30) NOT NULL,
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE role (
-  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  id INT NOT NULL AUTO_INCREMENT,
   title VARCHAR(30) NOT NULL,
   salary DECIMAL(10,4) NULL,
-  department_id INT 
+  department_id INT,
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE employee (
-  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  e_first_name VARCHAR(30) NOT NULL,
-  e_last_name VARCHAR(30) NOT NULL,
-  e_role_id INT NOT NULL,
-  e_mgr_id INT
+  id INT NOT NULL AUTO_INCREMENT,
+  first_name VARCHAR(30) NOT NULL,
+  last_name VARCHAR(30) NULL,
+  role_id INT NULL,
+  manager_id INT,
+  PRIMARY KEY (id)
 );
 
 SELECT * FROM department;

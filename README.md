@@ -4,9 +4,9 @@
 # Table of Contents
 
 * [Description](#description)
+* [URL's](#url's)
 * [Installation](#installation)
 * [Usage](#usage)
-* [License](#license)
 * [Contributing](#contributing)
 * [Test](#test)
 * [Questions](#questions)
@@ -14,14 +14,16 @@
 # Description:
 Content Mgmt system for tracking employees at work
 
+# URL's
+
+[Questions](#questions)
+[Questions](#questions)
+
 # Installation:
 Clone repo, install dependencies with 'npm install' command in terminal interface, then run the program with the command 'node server.js'.
 
 # Usage:
 Simple app for tracking employees at a small company
-
-# License:
-* Affero GPL
 
 # Contributing:
 contact Shawn Morgan

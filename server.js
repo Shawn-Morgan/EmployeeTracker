@@ -18,7 +18,7 @@ function start() {
     inquirer
     .prompt({
     name: "action",
-    type: "rawlist",
+    type: "list",
     message: "What would you like to do?",
     choices: [
         "Add departments?",
@@ -28,6 +28,7 @@ function start() {
         "View roles?",
         "View employees?",
         "Update employee roles?",
+        // "Quit?"
     ]
     })
     .then(function(answer) {
@@ -63,6 +64,7 @@ function start() {
     case "Update employee roles?":
         updateRoles();
         break;
+    // add default/quit here
     }
     });
 }
@@ -72,17 +74,19 @@ function start() {
 function addDepartments() {
     // prompt for what department to add
     inquirer
-    .prompt({
+    .prompt([
+        {
         name: "addDepartment",
         type: "input",
         message: "What department would you like to add?"
-    })
+        },
+    ])
     .then(function(answer) {
         // when finished prompting, insert a new department
         connection.query(
             "INSERT INTO department SET ?",
             {
-                department_name: answer.addDepartment,
+                name: answer.addDepartment,
             },
             function(err) {
                 if (err) throw err;
@@ -98,17 +102,25 @@ function addDepartments() {
 function addRoles() {
     // prompt for what role to add
     inquirer
-    .prompt({
+    .prompt([
+        {
         name: "addRole",
         type: "input",
         message: "What role would you like to add?"
-    })
+        },
+        {
+        name: "addSalary",
+        type: "input",
+        message: "What salary would you like this role to have?"
+        },
+    ])
     .then(function(answer) {
         // when finished prompting, insert a new role
         connection.query(
             "INSERT INTO role SET ?",
             {
                 title: answer.addRole,
+                salary: answer.addSalary,
             },
             function(err) {
                 if (err) throw err;
@@ -135,14 +147,15 @@ function addEmployees() {
         type: "input",
         message: "What is the employee's last name?"
         }
+        //add role question for new employee
     ])
     .then(function(answer) {
         // when finished prompting, insert a new employee with first and last name
         connection.query(
             "INSERT INTO employee SET ?",
             {
-                e_first_name: answer.firstName,
-                e_last_name: answer.lastName,
+                first_name: answer.firstName,
+                last_name: answer.lastName,
             },
             function(err) {
                 if (err) throw err;
@@ -158,6 +171,35 @@ function addEmployees() {
 function viewDepartments() {
     // show list of departments: query the database for all items departments
     connection.query("SELECT * FROM department", function(err, results) {
+        console.table(results);
+        if (err) throw err;
+
+    // once you have the items, prompt the user for which they'd like to bid on
+    inquirer
+    .prompt({
+        name: "startOver",
+        type: "rawlist",
+        message: "Would you like to start over or update departments?",
+        choices: ["start over", "update departments"]
+    })
+    .then(function(answer) {
+        // create update department
+        if (answer.startOver === "start over") {
+            start();
+        }
+        else if (answer.startOver === "update departments") {
+            updateDepartments();
+        } else{
+            connection.end();
+        }
+    });
+    });
+}
+
+//view roles
+function viewRoles() {
+    // view roles
+    connection.query("SELECT * FROM role", function(err, results) {
         console.table(results);
         if (err) throw err;
 
@@ -183,80 +225,72 @@ function viewDepartments() {
     });
 }
 
-// //view roles
-// function viewRoles() {
-//     // view roles
-//     inquirer
-//     .prompt({
-//         name: "addDepartment",
-//         type: "input",
-//         message: "What department would you like to add?"
-//     })
-//     .then(function(answer) {
-//         // ???
-//         connection.query(
-//             "INSERT INTO department SET ?",
-//             {
-//                 department_name: answer.addDepartment,
-//             },
-//             function(err) {
-//                 if (err) throw err;
-//                 console.log("Your department was added successfully!");
-//                 // go back to start
-//                 start();
-//             }
-//         );
-//     });
-// }
+//view employees
+function viewEmployees() {
+    // view employees
+    connection.query("SELECT * FROM employee", function(err, results) {
+        console.table(results);
+        if (err) throw err;
 
-// //view employees
-// function viewEmployees() {
-//     // view employees
-//     inquirer
-//     .prompt({
-//         name: "addDepartment",
-//         type: "input",
-//         message: "What department would you like to add?"
-//     })
-//     .then(function(answer) {
-//         // ???
-//         connection.query(
-//             "INSERT INTO department SET ?",
-//             {
-//                 department_name: answer.addDepartment,
-//             },
-//             function(err) {
-//                 if (err) throw err;
-//                 console.log("Your department was added successfully!");
-//                 // go back to start
-//                 start();
-//             }
-//         );
-//     });
-// }
+    // once you have the items, prompt the user for which they'd like to bid on
+    inquirer
+    .prompt({
+        name: "startOver",
+        type: "list",
+        message: "Would you like to start over or update departments?",
+        choices: ["start over", "update departments"]
+    })
+    .then(function(answer) {
+        // ???
+        if (answer.startOver === "start over") {
+            start();
+        }
+        else if (answer.startOver === "update departments") {
+            updateDepartments();
+        } else{
+            connection.end();
+        }
+    });
+    });
+}
 
-// //update roles
-// function updateRoles() {
-//     // prompt for what role to update
+
+
+//update roles
+// Function updateRoles() 
+//     connection.query("SELECT title FROM role", function(err, results) {
+//         console.table(results);
+//         if (err) throw err;
+//       // once you have the items, prompt the user for which they'd like to bid on
 //     inquirer
-//     .prompt({
-//         name: "addDepartment",
-//         type: "input",
-//         message: "What department would you like to add?"
-//     })
-//     .then(function(answer) {
-//         // ???
-//         connection.query(
-//             "INSERT INTO department SET ?",
-//             {
-//                 department_name: answer.addDepartment,
+//     .prompt([
+//         {
+//         name: "choice",
+//         type: "rawlist",
+//         choices: function() {
+//         var choiceArray = [];
+//         for (var i = 0; i < results.length; i++) {
+//         choiceArray.push(results[i].item_name);
+//         }
+//             return choiceArray;
 //             },
-//             function(err) {
-//                 if (err) throw err;
-//                 console.log("Your department was added successfully!");
-//                 // go back to start
-//                 start();
-//             }
-//         );
-//     });
-// }
+//             message: "What role would you like to update?"
+//         },
+
+//         // ])
+//         // .then(function(answer) {
+//         // // get the information of the chosen item
+//         // var chosenItem;
+//         // for (var i = 0; i < results.length; i++) {
+//         // if (results[i].item_name === answer.choice) {
+//         // chosenItem = results[i];
+//         // }
+//         // }
+
+//         .then(function (answer) {
+//         connection.query("UPDATE role SET role_id = ? WHERE first_name = ?", [response.role_id, response.first_name],
+//         function (err, data) {
+//         // console.table(data);
+//         console.log("Updated!")
+//         start();
+//         })

@@ -1,6 +1,6 @@
 USE EmployeeTrackerDB;
 
-INSERT INTO department (department_name)
+INSERT INTO department (name)
 VALUES 
 	("Finance"), 
     ("HR"), 
@@ -16,7 +16,7 @@ VALUES
     ("Strategist", 175000, 50),
     ("Fellow", 200000, 60);
 
-INSERT INTO employee (e_first_name, e_last_name, e_role_id, e_mgr_id)
+INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES 
 	("Joe", "Buck", 10, NULL),
     ("Troy", "Aikman", 40, NULL),
